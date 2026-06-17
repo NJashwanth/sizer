@@ -2,7 +2,7 @@
   "name": "sizer",
   "displayName": "Sizer",
   "description": "Display file sizes directly in VS Code explorer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "JashwanthNeela",
   "author": "Jashwanth Neela",
   "license": "MIT",
