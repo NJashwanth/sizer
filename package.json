@@ -1,0 +1,61 @@
+{
+  "name": "sizer",
+  "displayName": "Sizer",
+  "description": "Display file sizes directly in VS Code explorer",
+  "version": "0.0.1",
+  "publisher": "sizer",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "File Size Explorer",
+      "properties": {
+        "fileSizeExplorer.showSize": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable file size decorations in the explorer"
+        },
+        "fileSizeExplorer.sizeFormat": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "bytes"
+          ],
+          "enumDescriptions": [
+            "Automatically format as B, KB, MB, or GB",
+            "Always show size in bytes"
+          ],
+          "description": "How to format file sizes"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "fileSizeExplorer.refreshDecorations",
+        "title": "File Size Explorer: Refresh"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.70.0",
+    "typescript": "^5.0.0"
+  }
+}
