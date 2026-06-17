@@ -1,87 +1,69 @@
 # Sizer
 
-Display file sizes as badges directly in the VS Code file explorer — no need to switch to Finder or Explorer to check file sizes.
+Display file sizes in the VS Code status bar for any file you open — no need to switch to Finder or Explorer to check file sizes.
 
 ## Features
 
-- **File size badges** in the explorer tree next to every file
+- **File size in status bar** — shows the size of the currently open file (e.g., `2.3 KB`)
 - **Smart formatting** — automatically shows B, KB, MB, or GB
-- **Real-time updates** — badges refresh when files are created, modified, or deleted
+- **Real-time updates** — size updates when you switch files or save
+- **All file types** — works with every file, not just images
 - **Configurable** — toggle visibility and choose between auto or bytes format
 - **Lightweight** — reads file metadata on demand with no caching overhead
 
-## Installation & Setup
+![Sizer in action](demo.png)
 
-1. Clone this repository
-2. Run `npm install`
-3. Run `npm run compile`
-4. Press **F5** to launch the Extension Development Host
+## How to Use
 
-To package for distribution:
+1. Install the extension
+2. Open any file in VS Code
+3. Look at the **bottom-right status bar** — you'll see the file size displayed like:
 
-```bash
-npm install -g @vscode/vsce
-vsce package
+```
+📄 2.3 KB
 ```
 
-Then install the generated `.vsix` file via **Extensions > Install from VSIX**.
+4. Switch between files — the size updates automatically
+5. Save a file — the size refreshes to reflect changes
 
-## Quick Start
-
-1. Open any folder in VS Code
-2. Look at the file explorer — every file now has a size badge (e.g., `2.3KB`)
-3. Open Settings and search "Sizer" to configure
-
-## Usage
-
-### Viewing File Sizes
-
-File sizes appear as colored badges next to filenames in the explorer panel. Hover over a badge to see the tooltip with the full size.
-
-### Settings
+## Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `sizer.showSize` | `true` | Enable or disable size badges |
-| `sizer.sizeFormat` | `auto` | `auto` (B/KB/MB/GB) or `bytes` (always bytes) |
+| `sizer.showSize` | `true` | Show or hide the file size in the status bar |
+| `sizer.sizeFormat` | `auto` | `auto` (B/KB/MB/GB) or `bytes` (always show raw bytes) |
 
-### Refresh Command
+To configure, open Settings (`Cmd+,` / `Ctrl+,`) and search for **Sizer**.
 
-Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **Sizer: Refresh** to manually refresh all decorations.
+## Refresh Command
+
+Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **Sizer: Refresh** to manually refresh the displayed size.
 
 ## How It Works
 
-The extension uses VS Code's `FileDecorationProvider` API to attach badge text and tooltips to file URIs in the explorer. File sizes are read via `fs.statSync()` on demand — no background scanning or caching is needed.
-
-A `FileSystemWatcher` per workspace folder listens for create, change, and delete events to trigger decoration refreshes automatically.
-
-## Customization Ideas
-
-1. **Color-code by size** — red for large files, green for small
-2. **Exclude patterns** — skip `node_modules` or other directories
-3. **Size thresholds** — only show badges for files above a certain size
-4. **Status bar summary** — show total workspace size in the status bar
-5. **Sort by size** — add a custom tree view sorted by file size
+The extension creates a status bar item that reads the file size of the active editor's file via `fs.statSync()`. It listens for editor switches and file saves to keep the displayed size up to date.
 
 ## Troubleshooting
 
-**Badges not showing?**
+**Size not showing?**
+- Make sure a file is open in the editor (the size hides when no file is active)
 - Check that `sizer.showSize` is `true` in Settings
-- Run the refresh command from the Command Palette
+- Try the refresh command from the Command Palette
 - Reload the VS Code window (`Developer: Reload Window`)
 
-**Wrong sizes after editing?**
-- Sizes update on save. Unsaved changes won't reflect until the file is written to disk.
+**Size not updating after edits?**
+- The size updates on save. Unsaved changes won't reflect until the file is written to disk.
 
-**Performance issues with large projects?**
-- The extension reads file stats on demand, so it scales well. If you notice slowness, check if other extensions are causing the issue.
+## Development
 
-## API Reference
+```bash
+git clone https://github.com/NJashwanth/sizer.git
+cd sizer
+npm install
+npm run compile
+```
 
-- [`vscode.FileDecorationProvider`](https://code.visualstudio.com/api/references/vscode-api#FileDecorationProvider)
-- [`vscode.workspace.createFileSystemWatcher`](https://code.visualstudio.com/api/references/vscode-api#workspace.createFileSystemWatcher)
-- [`vscode.workspace.onDidChangeConfiguration`](https://code.visualstudio.com/api/references/vscode-api#workspace.onDidChangeConfiguration)
-- [`fs.statSync`](https://nodejs.org/api/fs.html#fsstatsyncpath-options)
+Press **F5** in VS Code to launch the Extension Development Host and test the extension.
 
 ## Author
 
