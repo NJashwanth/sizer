@@ -2,10 +2,11 @@
   "name": "sizer",
   "displayName": "Sizer",
   "description": "Display file sizes directly in VS Code explorer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "JashwanthNeela",
   "author": "Jashwanth Neela",
   "license": "MIT",
+  "icon": "icon.png",
   "homepage": "https://github.com/NJashwanth/sizer",
   "repository": {
     "type": "git",
