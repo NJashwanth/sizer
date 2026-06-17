@@ -83,6 +83,10 @@ A `FileSystemWatcher` per workspace folder listens for create, change, and delet
 - [`vscode.workspace.onDidChangeConfiguration`](https://code.visualstudio.com/api/references/vscode-api#workspace.onDidChangeConfiguration)
 - [`fs.statSync`](https://nodejs.org/api/fs.html#fsstatsyncpath-options)
 
+## Author
+
+Built by [Jashwanth Neela](https://jneela.dev/).
+
 ## License
 
 MIT
