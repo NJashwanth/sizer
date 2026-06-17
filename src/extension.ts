@@ -1,29 +1,11 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-function formatBadge(bytes: number, format: string): string {
+function formatSize(bytes: number, format: string): string {
     if (format === 'bytes') {
-        return `${bytes}`;
+        return `${bytes} B`;
     }
 
-    if (bytes < 1024) {
-        return `${bytes}`;
-    }
-
-    const units = ['K', 'M', 'G', 'T'];
-    let size = bytes;
-    let unitIndex = -1;
-
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
-        unitIndex++;
-    }
-
-    const rounded = size >= 10 ? Math.round(size) : Math.round(size * 10) / 10;
-    return `${rounded}${units[unitIndex]}`;
-}
-
-function formatTooltip(bytes: number): string {
     if (bytes < 1024) {
         return `${bytes} B`;
     }
@@ -40,109 +22,73 @@ function formatTooltip(bytes: number): string {
     return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
 
-class FileSizeDecorationProvider implements vscode.FileDecorationProvider {
-    private readonly _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
-    readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
-
-    provideFileDecoration(uri: vscode.Uri, _token: vscode.CancellationToken): vscode.FileDecoration | undefined {
-        const config = vscode.workspace.getConfiguration('sizer');
-        if (!config.get<boolean>('showSize', true)) {
-            return undefined;
-        }
-
-        try {
-            const stat = fs.statSync(uri.fsPath);
-            if (!stat.isFile()) {
-                return undefined;
-            }
-
-            const format = config.get<string>('sizeFormat', 'auto');
-            const badge = formatBadge(stat.size, format);
-            const tooltip = formatTooltip(stat.size);
-
-            return {
-                badge,
-                tooltip,
-                color: new vscode.ThemeColor('charts.blue'),
-            };
-        } catch {
-            return undefined;
-        }
+function updateStatusBar(statusBarItem: vscode.StatusBarItem): void {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        statusBarItem.hide();
+        return;
     }
 
-    refresh(uri?: vscode.Uri): void {
-        this._onDidChangeFileDecorations.fire(uri);
+    const config = vscode.workspace.getConfiguration('sizer');
+    if (!config.get<boolean>('showSize', true)) {
+        statusBarItem.hide();
+        return;
     }
 
-    dispose(): void {
-        this._onDidChangeFileDecorations.dispose();
+    const uri = editor.document.uri;
+    if (uri.scheme !== 'file') {
+        statusBarItem.hide();
+        return;
+    }
+
+    try {
+        const stat = fs.statSync(uri.fsPath);
+        const format = config.get<string>('sizeFormat', 'auto');
+        const size = formatSize(stat.size, format);
+        statusBarItem.text = `$(file) ${size}`;
+        statusBarItem.tooltip = `File size: ${formatSize(stat.size, 'auto')}`;
+        statusBarItem.show();
+    } catch {
+        statusBarItem.hide();
     }
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-    const provider = new FileSizeDecorationProvider();
-
-    context.subscriptions.push(
-        vscode.window.registerFileDecorationProvider(provider)
+    const statusBarItem = vscode.window.createStatusBarItem(
+        vscode.StatusBarAlignment.Right,
+        100
     );
 
-    const watchers: vscode.FileSystemWatcher[] = [];
-
-    function setupWatchers(): void {
-        for (const watcher of watchers) {
-            watcher.dispose();
-        }
-        watchers.length = 0;
-
-        const folders = vscode.workspace.workspaceFolders;
-        if (!folders) {
-            return;
-        }
-
-        for (const folder of folders) {
-            const pattern = new vscode.RelativePattern(folder, '**/*');
-            const watcher = vscode.workspace.createFileSystemWatcher(pattern);
-
-            watcher.onDidCreate(uri => provider.refresh(uri));
-            watcher.onDidChange(uri => provider.refresh(uri));
-            watcher.onDidDelete(uri => provider.refresh(uri));
-
-            watchers.push(watcher);
-            context.subscriptions.push(watcher);
-        }
-    }
-
-    setupWatchers();
+    updateStatusBar(statusBarItem);
 
     context.subscriptions.push(
-        vscode.workspace.onDidChangeWorkspaceFolders(() => {
-            setupWatchers();
-            provider.refresh();
+        vscode.window.onDidChangeActiveTextEditor(() => {
+            updateStatusBar(statusBarItem);
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument(() => {
+            updateStatusBar(statusBarItem);
         })
     );
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration('sizer')) {
-                provider.refresh();
+                updateStatusBar(statusBarItem);
             }
         })
     );
 
     context.subscriptions.push(
-        vscode.workspace.onDidChangeTextDocument(e => {
-            provider.refresh(e.document.uri);
-        })
-    );
-
-    context.subscriptions.push(
         vscode.commands.registerCommand('sizer.refreshDecorations', () => {
-            provider.refresh();
-            vscode.window.showInformationMessage('File size decorations refreshed!');
+            updateStatusBar(statusBarItem);
+            vscode.window.showInformationMessage('Sizer refreshed!');
         })
     );
 
-    context.subscriptions.push(provider);
+    context.subscriptions.push(statusBarItem);
 }
 
 export function deactivate(): void {}
