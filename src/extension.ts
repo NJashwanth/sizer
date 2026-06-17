@@ -1,13 +1,31 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-function formatFileSize(bytes: number, format: string): string {
+function formatBadge(bytes: number, format: string): string {
     if (format === 'bytes') {
-        return `${bytes}B`;
+        return `${bytes}`;
     }
 
     if (bytes < 1024) {
-        return `${bytes}B`;
+        return `${bytes}`;
+    }
+
+    const units = ['K', 'M', 'G', 'T'];
+    let size = bytes;
+    let unitIndex = -1;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+
+    const rounded = size >= 10 ? Math.round(size) : Math.round(size * 10) / 10;
+    return `${rounded}${units[unitIndex]}`;
+}
+
+function formatTooltip(bytes: number): string {
+    if (bytes < 1024) {
+        return `${bytes} B`;
     }
 
     const units = ['KB', 'MB', 'GB', 'TB'];
@@ -19,7 +37,7 @@ function formatFileSize(bytes: number, format: string): string {
         unitIndex++;
     }
 
-    return `${size.toFixed(1)}${units[unitIndex]}`;
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
 
 class FileSizeDecorationProvider implements vscode.FileDecorationProvider {
@@ -27,7 +45,7 @@ class FileSizeDecorationProvider implements vscode.FileDecorationProvider {
     readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
 
     provideFileDecoration(uri: vscode.Uri, _token: vscode.CancellationToken): vscode.FileDecoration | undefined {
-        const config = vscode.workspace.getConfiguration('fileSizeExplorer');
+        const config = vscode.workspace.getConfiguration('sizer');
         if (!config.get<boolean>('showSize', true)) {
             return undefined;
         }
@@ -39,8 +57,8 @@ class FileSizeDecorationProvider implements vscode.FileDecorationProvider {
             }
 
             const format = config.get<string>('sizeFormat', 'auto');
-            const badge = formatFileSize(stat.size, format);
-            const tooltip = `File size: ${formatFileSize(stat.size, 'auto')}`;
+            const badge = formatBadge(stat.size, format);
+            const tooltip = formatTooltip(stat.size);
 
             return {
                 badge,
@@ -105,7 +123,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('fileSizeExplorer')) {
+            if (e.affectsConfiguration('sizer')) {
                 provider.refresh();
             }
         })
@@ -118,7 +136,7 @@ export function activate(context: vscode.ExtensionContext): void {
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('fileSizeExplorer.refreshDecorations', () => {
+        vscode.commands.registerCommand('sizer.refreshDecorations', () => {
             provider.refresh();
             vscode.window.showInformationMessage('File size decorations refreshed!');
         })
