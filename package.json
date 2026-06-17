@@ -16,14 +16,14 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "File Size Explorer",
+      "title": "Sizer",
       "properties": {
-        "fileSizeExplorer.showSize": {
+        "sizer.showSize": {
           "type": "boolean",
           "default": true,
           "description": "Enable or disable file size decorations in the explorer"
         },
-        "fileSizeExplorer.sizeFormat": {
+        "sizer.sizeFormat": {
           "type": "string",
           "default": "auto",
           "enum": [
@@ -40,8 +40,8 @@
     },
     "commands": [
       {
-        "command": "fileSizeExplorer.refreshDecorations",
-        "title": "File Size Explorer: Refresh"
+        "command": "sizer.refreshDecorations",
+        "title": "Sizer: Refresh"
       }
     ]
   },

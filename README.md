@@ -1,4 +1,4 @@
-# File Size Explorer
+# Sizer
 
 Display file sizes as badges directly in the VS Code file explorer — no need to switch to Finder or Explorer to check file sizes.
 
@@ -30,7 +30,7 @@ Then install the generated `.vsix` file via **Extensions > Install from VSIX**.
 
 1. Open any folder in VS Code
 2. Look at the file explorer — every file now has a size badge (e.g., `2.3KB`)
-3. Open Settings and search "File Size Explorer" to configure
+3. Open Settings and search "Sizer" to configure
 
 ## Usage
 
@@ -42,12 +42,12 @@ File sizes appear as colored badges next to filenames in the explorer panel. Hov
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `fileSizeExplorer.showSize` | `true` | Enable or disable size badges |
-| `fileSizeExplorer.sizeFormat` | `auto` | `auto` (B/KB/MB/GB) or `bytes` (always bytes) |
+| `sizer.showSize` | `true` | Enable or disable size badges |
+| `sizer.sizeFormat` | `auto` | `auto` (B/KB/MB/GB) or `bytes` (always bytes) |
 
 ### Refresh Command
 
-Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **File Size Explorer: Refresh** to manually refresh all decorations.
+Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **Sizer: Refresh** to manually refresh all decorations.
 
 ## How It Works
 
@@ -66,7 +66,7 @@ A `FileSystemWatcher` per workspace folder listens for create, change, and delet
 ## Troubleshooting
 
 **Badges not showing?**
-- Check that `fileSizeExplorer.showSize` is `true` in Settings
+- Check that `sizer.showSize` is `true` in Settings
 - Run the refresh command from the Command Palette
 - Reload the VS Code window (`Developer: Reload Window`)
 
