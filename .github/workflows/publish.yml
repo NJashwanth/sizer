@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -68,3 +68,14 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: npx @vscode/vsce publish -p "$VSCE_PAT"
+
+      - name: Create GitHub Release
+        if: ${{ steps.version_check.outputs.already_published == 'false' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version='${{ steps.package.outputs.version }}'
+          gh release create "v${version}" \
+            --title "v${version}" \
+            --generate-notes \
+            --target main
